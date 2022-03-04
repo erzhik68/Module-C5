@@ -1,0 +1,66 @@
+﻿function useRequest(url, callback) {
+  let xhr = new XMLHttpRequest();
+  xhr.open("get", url, true);
+
+  xhr.onload = function () {
+    if (xhr.status != 200) {
+      console.log("Статус ответа: ", xhr.status);
+    } else {
+      const result = JSON.parse(xhr.response);
+      if (callback) {
+        callback(result);
+      }
+    }
+  };
+
+  xhr.onerror = function () {
+    console.log("Ошибка! Статус ответа: ", xhr.status);
+  };
+
+  xhr.send();
+}
+
+// ищем поле, для вставки числа
+const numberValue = document.querySelector(".myNumber");
+// console.log("numberValue: ", numberValue.value);
+// ищем кнопку, по которой нажимаем, чтоб начать запрос
+const btn = document.querySelector(".btn");
+// ищем поле, куда вставляем результат запроса
+const result = document.querySelector(".result");
+
+function displayResult(apiData) {
+  // console.log("value", numberValue.value);
+  let photos = "";
+  if (numberValue.value < 1 || numberValue.value > 10) {
+    photos = "Число вне диапазона от 1 до 10";
+  } else {
+    apiData.forEach((item) => {
+      const photoBlock = `
+        <div class="card">
+          <img 
+            src="${item.download_url}"
+            class="card-image"
+          />
+          <p>${item.author}</p>
+        </div>
+     `;
+      photos = photos + photoBlock;
+    });
+  }
+  result.innerHTML = photos;
+}
+
+btn.addEventListener("click", () => {
+  useRequest(
+	`https://picsum.photos/v2/list?limit=${numberValue.value}`,
+	displayResult
+  );
+});
+
+//document.addEventListener('DOMContentLoaded', function () {
+//  btn.addEventListener("click", ()=>{useRequest(
+//    `https://picsum.photos/v2/list?limit=${numberValue.value}`,
+//    displayResult
+//  );
+//});
+//});
